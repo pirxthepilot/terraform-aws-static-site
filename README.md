@@ -4,7 +4,7 @@ Terraform module for a single static site using AWS S3 and Cloudfront
 
 ## Features
 
-* Deploys almost everything you need to create your static website
+* Deploys almost everything needed to create a static website
 * No need to make your S3 bucket publicly accessible - only Cloudfront can access it via Origin Access Identity (OAI) 
 * URL rewrite function that appends index.html to the URI. Without this, Cloudfront is only able to render the top level `index.html` of your site (in other words, you can access `https://example.com` but not e.g. `https://example.com/foo`).
 
@@ -17,12 +17,15 @@ This module creates these AWS resources for your static website:
 * Requisite IAM and bucket access policies
 * S3 Origin Access Identity (OAI)
 * Route53 DNS records
+* TLS certificates (including DNS verification)
 * Cloudfront distribution
 
-This DOES NOT deploy
+This module DOES NOT deploy
 
-* You domain's Route53 zone - you will have to manually configure this and obtain the zone ID to use with this module.
+* Your domain's Route53 zone - you will have to manually configure this and obtain the zone ID to use with this module.
 * Your static site source - see [Uploading files to S3](#uploading-files-to-s3)
+
+At the moment, this only deploys one site under the apex domain (e.g. https://example.com but not https://www.example.com).
 
 
 ## Usage
@@ -30,14 +33,14 @@ This DOES NOT deploy
 Clone or submodule this repo. For example:
 
 ```
-git clone https://github.com/pirxthepilot/terraform-aws-static-site.git
+git clone https://github.com/pirxthepilot/terraform-aws-static-site.git ./modules/terraform-aws-static-site
 ```
 
 In the terraform project `main.tf`:
 
 ```
 module "my_site" {
-  source = "../modules/terraform-aws-static-site"
+  source = "./modules/terraform-aws-static-site"
   name   = "my_site"
 
   domain               = "example.com"
