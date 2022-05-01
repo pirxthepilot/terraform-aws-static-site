@@ -10,6 +10,12 @@ variable "domain" {
   description = "Domain name"
 }
 
+variable "subdomains" {
+  description = "List of subdomains to set up. Everything here will be redirected to the apex domain."
+  type        = list(any)
+  default     = []
+}
+
 variable "route53_zone_id" {
   description = "Zone ID of domain"
 }

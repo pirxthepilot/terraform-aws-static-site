@@ -5,6 +5,8 @@ Terraform module for a single static site using AWS S3 and Cloudfront
 ## Features
 
 * Deploys almost everything needed to create a static website
+* Main URL uses the apex domain (e.g. https://example.com)
+* Multiple subdomain support - redirects to the apex domain
 * No need to make your S3 bucket publicly accessible - only Cloudfront can access it via Origin Access Identity (OAI) 
 * URL rewrite function that appends index.html to the URI. Without this, Cloudfront is only able to render the top level `index.html` of your site (in other words, you can access `https://example.com` but not e.g. `https://example.com/foo`).
 
@@ -19,13 +21,12 @@ This module creates these AWS resources for your static website:
 * Route53 DNS records
 * TLS certificates (including DNS verification)
 * Cloudfront distribution
+* Cloudfront function for redirect and rewrite rules
 
 This module DOES NOT deploy
 
 * Your domain's Route53 zone - you will have to manually configure this and obtain the zone ID to use with this module.
-* Your static site source - see [Uploading files to S3](#uploading-files-to-s3)
-
-At the moment, this only deploys one site under the apex domain (e.g. https://example.com but not https://www.example.com).
+* Your static site source files - see [Uploading files to S3](#uploading-files-to-s3)
 
 
 ## Usage
@@ -44,6 +45,7 @@ module "my_site" {
   name   = "my_site"
 
   domain               = "example.com"
+  subdomains           = ["www"]
   route53_zone_id      = var.your_zone_id
   block_ofac_countries = true
 
@@ -60,8 +62,9 @@ Inputs:
 * `source` - path to this module relative to your project directory
 * `name` - a name for your deployment
 * `domain` - your site's domain (e.g. `example.com`)
+* `subdomains` (optional) - a list of subdomains to configure. Note that all subdomains will just redirect to the apex domain URL. Default is `[]` (no subdomain).
 * `route53_zone_id` - Route53 zone ID of your domain
-* `block_ofac_countries` (optional) - whether or not to block OFAC sanctioned countries (default is `false`)
+* `block_ofac_countries` (optional) - whether or not to block OFAC sanctioned countries. Default is `false`.
 * `cache_ttl` (optional) - Cloudfront cache TTL values. See [variables.tf](./variables.tf) for default values.
 
 Run from your terraform project:

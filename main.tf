@@ -81,7 +81,7 @@ resource "aws_acm_certificate" "static_site" {
   provider = aws.acm
 
   domain_name               = var.domain
-  subject_alternative_names = ["www.${var.domain}"]
+  subject_alternative_names = [for s in var.subdomains : "${s}.${var.domain}"]
   validation_method         = "DNS"
 
   lifecycle {
@@ -120,7 +120,7 @@ resource "aws_acm_certificate_validation" "static_site" {
 }
 
 #######################################
-# Route 53 Record
+# Route 53 Records
 #######################################
 resource "aws_route53_record" "static_site" {
   zone_id = var.route53_zone_id
@@ -133,6 +133,18 @@ resource "aws_route53_record" "static_site" {
     zone_id                = aws_cloudfront_distribution.static_site.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+resource "aws_route53_record" "static_site_subdomains" {
+  for_each = toset(var.subdomains)
+
+  zone_id = var.route53_zone_id
+
+  name    = each.value
+  type    = "CNAME"
+  ttl     = 300
+  records = [var.domain]
+
 }
 
 #######################################
@@ -148,7 +160,7 @@ resource "aws_cloudfront_distribution" "static_site" {
     }
   }
 
-  aliases = [var.domain]
+  aliases = concat([var.domain], [for s in var.subdomains : "${s}.${var.domain}"])
 
   enabled             = true
   is_ipv6_enabled     = false
@@ -210,5 +222,5 @@ resource "aws_cloudfront_function" "static_site" {
   runtime = "cloudfront-js-1.0"
   comment = "index.html rewrite for S3 origin"
   publish = true
-  code    = file("${path.module}/function.js")
+  code    = templatefile("${path.module}/function.js.tftpl", { domain = var.domain, subdomains = var.subdomains })
 }
