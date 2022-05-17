@@ -90,7 +90,7 @@ resource "aws_acm_certificate" "static_site" {
 }
 
 #######################################
-# Cerfificate Validation - DNS
+# Certificate Validation - DNS
 #######################################
 resource "aws_route53_record" "validation" {
   for_each = {
