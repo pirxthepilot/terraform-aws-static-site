@@ -31,17 +31,11 @@ This module DOES NOT deploy
 
 ## Usage
 
-Clone or submodule this repo. For example:
-
-```
-git clone https://github.com/pirxthepilot/terraform-aws-static-site.git ./modules/terraform-aws-static-site
-```
-
 In the terraform project `main.tf`:
 
 ```
 module "my_site" {
-  source = "./modules/terraform-aws-static-site"
+  source = "github.com/pirxthepilot/terraform-aws-static-site?ref=v0.0.1"
   name   = "my_site"
 
   domain               = "example.com"
@@ -56,6 +50,8 @@ module "my_site" {
   }
 }
 ```
+
+It is highly recommended that you pin to a specific tag or commit ID by including `?ref=<tag_or_commit>` in the `source` declaration. Otherwise, future changes to this repo might break your site's deployment. 
 
 Inputs:
 
@@ -73,8 +69,28 @@ Run from your terraform project:
 teraform fmt
 terraform init
 terraform plan
+```
+
+Review the plan, and  if everything looks good, proceed to apply:
+
+```
 terraform apply
 ```
+
+### Using a cloned copy of the repo
+
+Alternatively, if you want to use the module but need to make custom changes, you can simply clone it to your local:
+
+```
+git clone https://github.com/pirxthepilot/terraform-aws-static-site.git ./modules/terraform-aws-static-site
+```
+
+then reference the cloned directory in your module declaration:
+
+```
+  source = "./modules/terraform-aws-static-site"
+```
+
 
 ## Uploading files to S3
 
